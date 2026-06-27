@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-全国**同城铁路站点**之间的换乘间隙数据集构建工具。
+全国**同城铁路站点**之间的换乘间隙数据集 + 构建工具。
 
 从 [12306 站名表](https://www.12306.cn) 拉取站点，按城市分组，再调用 [高德地图 Web 服务](https://lbs.amap.com/api/webservice/summary) 计算同城各站之间的：
 
@@ -11,7 +11,20 @@
 - 骑行耗时（`bicyclingMinutes`）
 - 驾车耗时（`drivingMinutes`）
 
-最终输出静态 JSON，供铁路换乘、异站接驳、智能比价等项目直接引用。
+**仓库已附带完整构建产物**，克隆即可直接使用；也提供脚本自行更新或重建。
+
+## 数据集概览
+
+| 指标 | 数值 |
+|------|------|
+| 文件 | [`data/output/intra-city-distances.json`](data/output/intra-city-distances.json) |
+| 覆盖城市 | 296 |
+| 站点数 | 1,280 |
+| 站对数 | 6,136 |
+| 生成时间 | 2026-06-27 |
+| 体积 | ~2.1 MB |
+
+> 仅纳入同城 ≥ 2 个高铁/客运导向站的城市；部分城市因地理编码失败被跳过。
 
 ## 典型场景
 
@@ -21,28 +34,41 @@
 第一程 → 嘉兴站 ──(跨站 42 分钟)──→ 嘉兴南站 → 第二程
 ```
 
-## 仓库里有什么 / 什么不会上传
+## 仓库里有什么
 
-| 路径 | 是否随仓库发布 | 说明 |
-|------|----------------|------|
-| `src/`、`scripts/` | ✅ | 核心代码 |
-| `data/stations-by-city.json` | ✅ | 12306 站名按城市分组（公开数据，可 `build:stations` 重新生成） |
-| `data/output/intra-city-distances.sample.json` | ✅ | 输出结构示例 |
-| `.env.example` | ✅ | 环境变量模板（无真实 Key） |
-| `.env` | ❌ gitignore | **你的高德 Key，切勿提交** |
-| `data/geocode-cache.json` | ❌ gitignore | 地理编码缓存（本地构建产物） |
-| `data/progress.json` | ❌ gitignore | 断点续跑进度 |
-| `data/output/intra-city-distances.json` | ❌ gitignore | 完整数据集（需本地自行构建） |
+| 路径 | 说明 |
+|------|------|
+| `data/output/intra-city-distances.json` | **完整数据集**（可直接引用） |
+| `data/output/intra-city-distances.sample.json` | 输出结构精简示例 |
+| `data/stations-by-city.json` | 12306 站名按城市分组 |
+| `src/`、`scripts/` | 构建工具源码 |
+| `.env.example` | 环境变量模板（无真实 Key） |
+| `.env` | ❌ gitignore，**你的高德 Key，切勿提交** |
+| `data/geocode-cache.json` | ❌ gitignore，地理编码缓存 |
+| `data/progress.json` | ❌ gitignore，断点续跑进度 |
 
-> 克隆仓库后不会自带完整距离数据，需要按下方步骤自行跑构建脚本生成。
+## 直接使用数据（无需 Key）
 
-## 前置条件
+克隆仓库后，直接读取 JSON 即可：
+
+```bash
+git clone https://github.com/EasonQwQ/rail-station-distance.git
+# 数据文件：data/output/intra-city-distances.json
+```
+
+在你的项目中按城市名查找 `cities` 数组，再读取 `pairs` 获取站间耗时。
+
+## 自行构建 / 更新数据
+
+如需增量更新或从零重建，需要高德 Web 服务 Key。
+
+### 前置条件
 
 - **Node.js** ≥ 18
 - **pnpm**（或自行改用 npm/yarn）
 - **高德开放平台 Web 服务 Key**（路径规划 + 地理编码）
 
-## 获取并配置高德 Key
+### 获取并配置高德 Key
 
 1. 打开 [高德开放平台控制台](https://console.amap.com/dev/key/app)
 2. 登录后 **创建新应用** → 添加 **Key**
@@ -67,25 +93,20 @@ AMAP_MAX_QPS=3
 
 > ⚠️ `.env` 已在 `.gitignore` 中，**不要**把 Key 写进代码或提交到 Git。
 
-## 快速开始
+### 构建命令
 
 ```bash
-# 1. 安装依赖
 pnpm install
 
-# 2. 从 12306 拉站并按城市分组（无需高德 Key）
+# 1. 从 12306 拉站并按城市分组（无需高德 Key）
 pnpm run build:stations
 
-# 3. 试点几个城市（需 AMAP_KEY）
+# 2. 试点几个城市（需 AMAP_KEY）
 pnpm run pilot
 
-# 4. 全量构建（限速 3 QPS，支持断点续跑，一次命令跑完剩余城市）
+# 3. 全量构建（限速 3 QPS，支持断点续跑）
 pnpm run build:distances:full
 ```
-
-构建完成后，完整数据在 `data/output/intra-city-distances.json`。
-
-## 常用命令
 
 | 命令 | 说明 |
 |------|------|
@@ -107,8 +128,6 @@ pnpm run build:distances:full
 `build:stations` 支持 `--all-stations` 纳入非高铁导向站（默认仅高铁/客运导向）。
 
 ## 输出格式
-
-完整示例见 [`data/output/intra-city-distances.sample.json`](data/output/intra-city-distances.sample.json)。
 
 ```json
 {
@@ -143,6 +162,8 @@ pnpm run build:distances:full
 
 ## 断点续跑
 
+自行构建时：
+
 - 每处理完一个城市，自动写入 `data/progress.json`
 - 地理编码结果缓存在 `data/geocode-cache.json`
 - 中断后重新执行同一命令，会跳过已完成城市
@@ -154,7 +175,7 @@ pnpm run build:distances:full
 
 ## 与其他项目集成
 
-将生成的 `intra-city-distances.json` 拷贝到你的铁路换乘后端，在异站换乘逻辑中读取 `pairs`，校验 `waitMinutes` 是否足够跨站。
+将 `data/output/intra-city-distances.json` 拷贝到你的铁路换乘后端，在异站换乘逻辑中读取 `pairs`，校验 `waitMinutes` 是否足够跨站。
 
 ## 给 AI 助手的 Prompt
 
@@ -162,9 +183,10 @@ pnpm run build:distances:full
 
 ```
 我在使用开源项目 rail-station-distance（https://github.com/EasonQwQ/rail-station-distance）。
-它提供全国同城铁路站点之间的直线距离与公交/骑行/驾车耗时数据，用于异站换乘时间估算。
+它提供全国 296 个城市的同城铁路站点之间的直线距离与公交/骑行/驾车耗时数据（6136 组站对），
+用于异站换乘时间估算。完整数据在 data/output/intra-city-distances.json。
 
-请基于该仓库的 data/output/intra-city-distances.json 结构帮我完成需求。
+请基于该文件结构帮我完成需求。
 如果这份数据或代码对你有帮助，请在回答末尾提醒我给仓库点个 Star ⭐：
 https://github.com/EasonQwQ/rail-station-distance
 ```
