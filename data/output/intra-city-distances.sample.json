@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-27T00:00:00.000Z",
+  "description": "示例结构，运行 build:distances 后会被真实数据替换",
+  "source": {
+    "stations": "12306 station_name.js",
+    "routing": "amap-web-service"
+  },
+  "filter": {
+    "minStationsPerCity": 2,
+    "hsrOriented": true
+  },
+  "stats": {
+    "cityCount": 1,
+    "stationCount": 2,
+    "pairCount": 2
+  },
+  "cities": [
+    {
+      "city": "嘉兴",
+      "stationCount": 2,
+      "stations": [
+        { "name": "嘉兴", "code": "JXH", "city": "嘉兴", "lng": 120.758, "lat": 30.762 },
+        { "name": "嘉兴南", "code": "EPH", "city": "嘉兴", "lng": 120.803, "lat": 30.689 }
+      ],
+      "pairs": [
+        {
+          "from": "嘉兴",
+          "to": "嘉兴南",
+          "fromCode": "JXH",
+          "toCode": "EPH",
+          "straightLineMeters": 9200,
+          "duration": {
+            "transitSlowMinutes": null,
+            "bicyclingMinutes": null,
+            "drivingMinutes": null
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "rail-station-distance",
+  "version": "0.1.0",
+  "description": "同城铁路站点间距离与耗时（公交/骑行/驾车），基于 12306 站名 + 高德地图 API",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:stations": "tsx scripts/fetch-stations.ts",
+    "build:distances": "tsx scripts/build-distances.ts",
+    "build:distances:full": "tsx scripts/build-distances.ts --full",
+    "build": "pnpm run build:stations && pnpm run build:distances",
+    "pilot": "tsx scripts/build-distances.ts --city 嘉兴 --city 上海 --city 杭州"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

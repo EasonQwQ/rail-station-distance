@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+
+# 本地构建产物与缓存（含 API Key 调用痕迹，勿提交）
+data/geocode-cache.json
+data/progress.json
+data/output/intra-city-distances.json
